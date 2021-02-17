@@ -1,0 +1,105 @@
+import random
+
+def feedback(geheime_combinatie, guess):
+    score = [0,0]
+    used = []
+
+    for positie in range(len(guess)):
+        if guess[positie] == geheime_combinatie[positie]:
+            score[0] += 1
+            used.append(positie)
+
+    kopie_geheim = geheime_combinatie[::]
+    print(geheime_combinatie)
+
+    for positie in used:
+        kopie_geheim.remove(geheime_combinatie[positie])
+    for i in range(len(guess)):
+        if i not in used:
+            if guess[i] in kopie_geheim:
+                score[1] += 1
+                kopie_geheim.remove(guess[i])
+    return score
+
+
+def reduceer(mogelijke_combinaties, code, score):
+    resultaat= []
+    for mogelijke_combinatie in mogelijke_combinaties:
+        if score == feedback(code, mogelijke_combinatie):
+            resultaat.append(mogelijke_combinatie)
+
+    return resultaat
+
+
+def auto_mogelijkheden():
+    kleuren = ['A','B','C','D','E','F']
+    mogelijke_combinaties= []
+
+    for i in range(6):
+        for j in range(6):
+            for k in range(6):
+                for l in range(6):
+                    poging= kleuren[i] + kleuren[j] + kleuren[k] + kleuren[l]
+                    mogelijke_combinaties.append(poging)
+
+    return mogelijke_combinaties
+
+def random_guess():
+
+    combinatie= auto_mogelijkheden()
+    return random.choice(combinatie)
+
+
+
+
+
+# start_game geeft informatie over de game (spelregels, kleuren etc.)
+def start_game():
+    print('Welkom bij Mastermind.')
+    print('De bedoeling is om de geheime combinatie te kraken.')
+    print('Voor elke poging ontvang je een hint.')
+    print('Je moet de geheime combinatie binnen 8 pogingen hebben gekraakt, anders heb je het spel verloren!')
+    print(
+        '1 weergeeft een goede kleur op de goede positie, en 2 een goede kleur maar op de verkeerde positie.')
+    print('A = Rood, B = Groen, C = Blauw, D = Zwart, E = Oranje, F = Wit')
+    print()
+
+    lengte_code = 4
+    kleuren = ['A', 'B', 'C', 'D', 'E', 'F']
+    geheime_combinatie = random.choices(kleuren, k=lengte_code)
+    pogingen = []
+
+    while True:
+
+        guess = random_guess()
+        print(guess)
+
+        if len(guess) != lengte_code or any([char not in kleuren for char in guess]):
+            continue
+        elif guess == geheime_combinatie:
+            print(f"\nGefeliciteerd, je hebt de geheime combinatie {geheime_combinatie} gekraakt!")
+            break
+        else:
+            pogingen.append(f"{len(pogingen) + 1}: {(guess)} --> {feedback(geheime_combinatie,guess)}")\
+
+
+
+        if len(pogingen) == 8:
+            print('Helaas, je hebt verloren. Het is je niet gelukt de geheime combinatie te kraken binnen 8 pogingen...')
+            break
+
+
+        for i_guess in pogingen:
+            print('------------------------------------')
+            print(i_guess)
+        print('------------------------------------')
+
+
+if __name__ == '__main__':
+    start_game()
+
+# Heuristiek -->
+# 1: vul de combinatie 'ABCD' in.
+# 2: kijk naar de uitkomst en vink de '-' af, laat de 'V' staan.
+# 3: Probeer de 'X' te verplaatsen.
+# 4: probeer vanuit hier steeds het doodlopende spoor af te strepen en steeds dichter bij de oplossing te komen.
